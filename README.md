@@ -48,8 +48,8 @@ ArtConnect is an innovative platform that leverages artificial intelligence to a
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/artconnect.git
-cd artconnect
+git clone https://github.com/Nayidtq/ArtConnect.git
+cd ArtConnect
 ```
 
 2. Create and activate a virtual environment:
@@ -138,4 +138,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - OpenAI for CLIP model
 - Hugging Face for transformers
 - Streamlit for the web framework
-- The open-source community for various tools and libraries 
+- The open-source community for various tools and libraries
+
+## Deployment
+
+This application is deployed on Streamlit Cloud. You can access it at: [Your Streamlit Cloud URL]
+
+## Technologies Used
+
+- Streamlit
+- Pillow (PIL)
+- NumPy 
