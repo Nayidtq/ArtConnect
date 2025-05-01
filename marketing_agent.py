@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import json
 import os
 
-class MarketingAgent:
+class ArtConnectMarketingAgent:
     def __init__(self):
         self.social_media_platforms = [
             "Instagram", "Facebook", "Twitter", "Pinterest", "LinkedIn",

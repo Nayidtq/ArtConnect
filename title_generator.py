@@ -1,62 +1,20 @@
-import random
+import torch
 from transformers import pipeline
+from PIL import Image
 
-class ArtConnectTitleGenerator:
+class ArtTitleGenerator:
     def __init__(self):
-        self.generator = pipeline('text-generation', model='gpt2')
-        self.adjectives = [
-            "Ethereal", "Mystical", "Vibrant", "Serene", "Dynamic",
-            "Timeless", "Whimsical", "Bold", "Delicate", "Captivating",
-            "Enigmatic", "Radiant", "Harmonious", "Expressive", "Dreamlike"
-        ]
-        
-        self.nouns = [
-            "Horizon", "Journey", "Reflection", "Essence", "Moment",
-            "Whisper", "Dance", "Silence", "Light", "Shadow",
-            "Memory", "Dream", "Soul", "Spirit", "Vision"
-        ]
-        
-        self.art_styles = [
-            "Abstract", "Impressionist", "Surreal", "Contemporary",
-            "Modern", "Expressionist", "Minimalist", "Cubist"
-        ]
-        
-        self.colors = [
-            "Azure", "Crimson", "Emerald", "Golden", "Indigo",
-            "Violet", "Amber", "Pearl", "Onyx", "Ruby"
-        ]
+        self.image_to_text = pipeline("image-to-text", model="nlpconnect/vit-gpt2-image-captioning")
     
-    def generate_title(self, artwork_info):
-        # Generate a creative title based on the artwork's characteristics
-        style = random.choice(self.art_styles)
-        adjective = random.choice(self.adjectives)
-        noun = random.choice(self.nouns)
-        color = random.choice(self.colors)
+    def generate_title(self, image):
+        # Generar descripción de la imagen
+        description = self.image_to_text(image)[0]['generated_text']
         
-        # Create different title patterns
-        patterns = [
-            f"{adjective} {noun}",
-            f"{color} {noun}",
-            f"{style} {noun}",
-            f"{adjective} {style} {noun}",
-            f"{color} {style} {noun}",
-            f"{adjective} {color} {noun}",
-            f"The {adjective} {noun} of {color}",
-            f"{style} {adjective} {noun}"
-        ]
+        # Crear título artístico basado en la descripción
+        title = f"'{description.capitalize()}'"
         
-        # Select a random pattern
-        base_title = random.choice(patterns)
-        
-        # Add a subtitle if the artwork has specific tags
-        if artwork_info.get("tags"):
-            style_tags = [tag for tag in artwork_info["tags"] if tag in self.art_styles]
-            if style_tags:
-                subtitle = f" - A {style_tags[0]} Exploration"
-                return base_title + subtitle
-        
-        return base_title
-    
+        return title
+
     def generate_description(self, title, artwork_info):
         # Generate a poetic description based on the title and artwork info
         descriptions = [

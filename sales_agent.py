@@ -5,12 +5,15 @@ import json
 import os
 from datetime import datetime
 import random
+from transformers import pipeline
+from PIL import Image
 
 class ArtConnectSalesAgent:
     def __init__(self):
         self.galleries_db = self._load_galleries_db()
         self.clients_db = self._load_clients_db()
         self.email_templates = self._load_email_templates()
+        self.image_to_text = pipeline("image-to-text", model="nlpconnect/vit-gpt2-image-captioning")
     
     def _load_galleries_db(self):
         # This would typically load from a database or file
@@ -162,4 +165,28 @@ class ArtConnectSalesAgent:
                 artwork_description=artwork_info["description"]
             )
             # In a real implementation, this would send actual emails
-            print(f"Email sent to client: {client['name']}") 
+            print(f"Email sent to client: {client['name']}")
+
+    def generate_sales_description(self, image, title):
+        # Generar descripción de la imagen
+        description = self.image_to_text(image)[0]['generated_text']
+        
+        # Crear descripción de venta
+        sales_description = f"""
+        {title}
+        
+        {description.capitalize()}
+        
+        Esta obra única captura la esencia del arte contemporáneo, combinando técnicas tradicionales con un enfoque moderno.
+        Perfecta para coleccionistas que buscan piezas únicas y significativas.
+        
+        Características:
+        - Técnica mixta
+        - Obra original
+        - Lista para colgar
+        - Certificado de autenticidad incluido
+        
+        Inversión en arte que apreciará con el tiempo.
+        """
+        
+        return sales_description 
