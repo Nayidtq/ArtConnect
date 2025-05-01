@@ -2,7 +2,6 @@ import streamlit as st
 import os
 from PIL import Image
 import numpy as np
-from rembg import remove
 import torch
 from transformers import pipeline
 import cv2
@@ -38,14 +37,14 @@ def process_image(uploaded_file):
     # Cargar la imagen
     input_image = Image.open(tmp_path)
     
-    # Eliminar el fondo
-    output_image = remove(input_image)
-    
     # Convertir a numpy array para procesamiento con OpenCV
-    img_array = np.array(output_image)
+    img_array = np.array(input_image)
     
     # Convertir a BGR para OpenCV
-    img_bgr = cv2.cvtColor(img_array, cv2.COLOR_RGBA2BGR)
+    if len(img_array.shape) == 3:
+        img_bgr = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
+    else:
+        img_bgr = cv2.cvtColor(img_array, cv2.COLOR_GRAY2BGR)
     
     # Aplicar filtros artísticos
     # 1. Filtro de acuarela
@@ -87,43 +86,48 @@ uploaded_file = st.file_uploader("Sube una imagen", type=['png', 'jpg', 'jpeg'])
 
 if uploaded_file is not None:
     with st.spinner('Procesando tu imagen...'):
-        # Procesar la imagen
-        processed_images = process_image(uploaded_file)
-        
-        # Mostrar resultados
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.image(processed_images['original'], caption="Imagen Original", use_column_width=True)
-        
-        with col2:
-            st.image(processed_images['watercolor'], caption="Estilo Acuarela", use_column_width=True)
-        
-        col3, col4 = st.columns(2)
-        
-        with col3:
-            st.image(processed_images['sketch'], caption="Estilo Boceto", use_column_width=True)
-        
-        with col4:
-            st.image(processed_images['oil_painting'], caption="Estilo Pintura al Óleo", use_column_width=True)
-        
-        # Generar título artístico
-        title = title_generator.generate_title(processed_images['original'])
-        st.success(f"Título sugerido para tu obra: **{title}**")
-        
-        # Generar descripción de venta
-        sales_description = sales_agent.generate_sales_description(
-            processed_images['original'],
-            title
-        )
-        st.info(f"Descripción para vender tu obra:\n\n{sales_description}")
-        
-        # Generar estrategia de marketing
-        marketing_strategy = marketing_agent.generate_marketing_strategy(
-            processed_images['original'],
-            title
-        )
-        st.info(f"Estrategia de marketing:\n\n{marketing_strategy}")
+        try:
+            # Procesar la imagen
+            processed_images = process_image(uploaded_file)
+            
+            # Mostrar resultados
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.image(processed_images['original'], caption="Imagen Original", use_column_width=True)
+            
+            with col2:
+                st.image(processed_images['watercolor'], caption="Estilo Acuarela", use_column_width=True)
+            
+            col3, col4 = st.columns(2)
+            
+            with col3:
+                st.image(processed_images['sketch'], caption="Estilo Boceto", use_column_width=True)
+            
+            with col4:
+                st.image(processed_images['oil_painting'], caption="Estilo Pintura al Óleo", use_column_width=True)
+            
+            # Generar título artístico
+            title = title_generator.generate_title(processed_images['original'])
+            st.success(f"Título sugerido para tu obra: **{title}**")
+            
+            # Generar descripción de venta
+            sales_description = sales_agent.generate_sales_description(
+                processed_images['original'],
+                title
+            )
+            st.info(f"Descripción para vender tu obra:\n\n{sales_description}")
+            
+            # Generar estrategia de marketing
+            marketing_strategy = marketing_agent.generate_marketing_strategy(
+                processed_images['original'],
+                title
+            )
+            st.info(f"Estrategia de marketing:\n\n{marketing_strategy}")
+            
+        except Exception as e:
+            st.error(f"Error al procesar la imagen: {str(e)}")
+            st.info("Por favor, intenta con otra imagen o contacta al soporte técnico.")
 
 # Footer
 st.markdown("---")
