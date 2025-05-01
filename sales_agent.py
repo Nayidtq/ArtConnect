@@ -8,7 +8,7 @@ import random
 from transformers import pipeline
 from PIL import Image
 
-class ArtConnectSalesAgent:
+class ArtSalesAgent:
     def __init__(self):
         self.galleries_db = self._load_galleries_db()
         self.clients_db = self._load_clients_db()
