@@ -2,12 +2,18 @@ import random
 from datetime import datetime, timedelta
 import json
 import os
+from transformers import pipeline
+from PIL import Image
 
 class ArtConnectMarketingAgent:
     def __init__(self):
+        self.image_to_text = pipeline("image-to-text", model="nlpconnect/vit-gpt2-image-captioning")
         self.social_media_platforms = [
-            "Instagram", "Facebook", "Twitter", "Pinterest", "LinkedIn",
-            "TikTok", "YouTube", "ArtStation", "Behance"
+            "Instagram",
+            "Facebook",
+            "Twitter",
+            "Pinterest",
+            "LinkedIn"
         ]
         
         self.marketing_strategies = {
@@ -152,4 +158,46 @@ class ArtConnectMarketingAgent:
     
     def _format_budget_summary(self, budget):
         """Formats budget summary"""
-        return "\n".join([f"- {category}: ${amount:.2f}" for category, amount in budget.items()]) 
+        return "\n".join([f"- {category}: ${amount:.2f}" for category, amount in budget.items()])
+
+    def generate_marketing_strategy(self, image, title):
+        try:
+            # Generar descripción de la imagen
+            description = self.image_to_text(image)[0]['generated_text']
+            
+            # Crear estrategia de marketing
+            strategy = f"""
+            Estrategia de Marketing para '{title}'
+            
+            Descripción de la obra:
+            {description.capitalize()}
+            
+            Plataformas recomendadas:
+            - Instagram: Perfecta para mostrar la obra en alta calidad
+            - Facebook: Ideal para llegar a coleccionistas y galerías
+            - Pinterest: Excelente para inspiración y descubrimiento
+            - LinkedIn: Para conectar con profesionales del arte
+            
+            Acciones recomendadas:
+            1. Crear una serie de posts mostrando diferentes aspectos de la obra
+            2. Compartir el proceso creativo detrás de la pieza
+            3. Publicar testimonios de expertos en arte
+            4. Organizar una exposición virtual
+            5. Colaborar con influencers del mundo del arte
+            
+            Presupuesto estimado:
+            - Publicidad en redes sociales: $200-500
+            - Fotografía profesional: $100-300
+            - Diseño de material promocional: $150-400
+            - Evento virtual: $300-800
+            
+            Resultados esperados:
+            - Aumento del 30% en seguidores
+            - 50-100 interacciones por publicación
+            - 5-10 contactos de galerías
+            - 3-5 consultas de compra
+            """
+            
+            return strategy
+        except Exception as e:
+            return f"Error al generar la estrategia de marketing: {str(e)}" 

@@ -168,25 +168,28 @@ class ArtSalesAgent:
             print(f"Email sent to client: {client['name']}")
 
     def generate_sales_description(self, image, title):
-        # Generar descripción de la imagen
-        description = self.image_to_text(image)[0]['generated_text']
-        
-        # Crear descripción de venta
-        sales_description = f"""
-        {title}
-        
-        {description.capitalize()}
-        
-        Esta obra única captura la esencia del arte contemporáneo, combinando técnicas tradicionales con un enfoque moderno.
-        Perfecta para coleccionistas que buscan piezas únicas y significativas.
-        
-        Características:
-        - Técnica mixta
-        - Obra original
-        - Lista para colgar
-        - Certificado de autenticidad incluido
-        
-        Inversión en arte que apreciará con el tiempo.
-        """
-        
-        return sales_description 
+        try:
+            # Generar descripción de la imagen
+            description = self.image_to_text(image)[0]['generated_text']
+            
+            # Crear descripción de venta
+            sales_description = f"""
+            {title}
+            
+            {description.capitalize()}
+            
+            Esta obra única captura la esencia del arte contemporáneo, combinando técnicas tradicionales con un enfoque moderno.
+            Perfecta para coleccionistas que buscan piezas únicas y significativas.
+            
+            Características:
+            - Técnica mixta
+            - Obra original
+            - Lista para colgar
+            - Certificado de autenticidad incluido
+            
+            Inversión en arte que apreciará con el tiempo.
+            """
+            
+            return sales_description
+        except Exception as e:
+            return f"Error al generar la descripción: {str(e)}" 
