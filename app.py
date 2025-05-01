@@ -10,130 +10,145 @@ from sales_agent import ArtSalesAgent
 from marketing_agent import ArtConnectMarketingAgent
 import tempfile
 
-# Configuración de la página
+# Page configuration
 st.set_page_config(
-    page_title="ArtConnect - Tu Galería de Arte Digital",
+    page_title="ArtConnect - Your Digital Art Gallery",
     page_icon="🎨",
     layout="wide"
 )
 
-# Inicialización de los agentes
+# Initialize agents
 @st.cache_resource
 def load_agents():
-    title_generator = ArtTitleGenerator()
-    sales_agent = ArtSalesAgent()
-    marketing_agent = ArtConnectMarketingAgent()
-    return title_generator, sales_agent, marketing_agent
+    try:
+        title_generator = ArtTitleGenerator()
+        sales_agent = ArtSalesAgent()
+        marketing_agent = ArtConnectMarketingAgent()
+        return title_generator, sales_agent, marketing_agent
+    except Exception as e:
+        st.error(f"Error loading agents: {str(e)}")
+        return None, None, None
 
 title_generator, sales_agent, marketing_agent = load_agents()
 
-# Función para procesar la imagen
+# Function to process image
 def process_image(uploaded_file):
-    # Guardar la imagen temporalmente
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as tmp_file:
-        tmp_file.write(uploaded_file.getvalue())
-        tmp_path = tmp_file.name
-    
-    # Cargar la imagen
-    input_image = Image.open(tmp_path)
-    
-    # Convertir a numpy array para procesamiento con OpenCV
-    img_array = np.array(input_image)
-    
-    # Convertir a BGR para OpenCV
-    if len(img_array.shape) == 3:
-        img_bgr = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
-    else:
-        img_bgr = cv2.cvtColor(img_array, cv2.COLOR_GRAY2BGR)
-    
-    # Aplicar filtros artísticos
-    # 1. Filtro de acuarela
-    watercolor = cv2.stylization(img_bgr, sigma_s=60, sigma_r=0.6)
-    
-    # 2. Filtro de boceto
-    gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
-    inverted = cv2.bitwise_not(gray)
-    blurred = cv2.GaussianBlur(inverted, (21, 21), 0)
-    sketch = cv2.divide(gray, 255 - blurred, scale=256)
-    
-    # 3. Filtro de pintura al óleo
-    oil_painting = cv2.xphoto.oilPainting(img_bgr, 7, 1)
-    
-    # Convertir de vuelta a PIL Image
-    watercolor_pil = Image.fromarray(cv2.cvtColor(watercolor, cv2.COLOR_BGR2RGB))
-    sketch_pil = Image.fromarray(sketch)
-    oil_painting_pil = Image.fromarray(cv2.cvtColor(oil_painting, cv2.COLOR_BGR2RGB))
-    
-    # Limpiar archivo temporal
-    os.unlink(tmp_path)
-    
-    return {
-        'original': input_image,
-        'watercolor': watercolor_pil,
-        'sketch': sketch_pil,
-        'oil_painting': oil_painting_pil
-    }
+    try:
+        # Save image temporarily
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as tmp_file:
+            tmp_file.write(uploaded_file.getvalue())
+            tmp_path = tmp_file.name
+        
+        # Load image
+        input_image = Image.open(tmp_path)
+        
+        # Convert to numpy array for OpenCV processing
+        img_array = np.array(input_image)
+        
+        # Convert to BGR for OpenCV
+        if len(img_array.shape) == 3:
+            img_bgr = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
+        else:
+            img_bgr = cv2.cvtColor(img_array, cv2.COLOR_GRAY2BGR)
+        
+        # Apply artistic filters
+        # 1. Watercolor filter
+        watercolor = cv2.stylization(img_bgr, sigma_s=60, sigma_r=0.6)
+        
+        # 2. Sketch filter
+        gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+        inverted = cv2.bitwise_not(gray)
+        blurred = cv2.GaussianBlur(inverted, (21, 21), 0)
+        sketch = cv2.divide(gray, 255 - blurred, scale=256)
+        
+        # 3. Oil painting filter
+        oil_painting = cv2.xphoto.oilPainting(img_bgr, 7, 1)
+        
+        # Convert back to PIL Image
+        watercolor_pil = Image.fromarray(cv2.cvtColor(watercolor, cv2.COLOR_BGR2RGB))
+        sketch_pil = Image.fromarray(sketch)
+        oil_painting_pil = Image.fromarray(cv2.cvtColor(oil_painting, cv2.COLOR_BGR2RGB))
+        
+        # Clean up temporary file
+        os.unlink(tmp_path)
+        
+        return {
+            'original': input_image,
+            'watercolor': watercolor_pil,
+            'sketch': sketch_pil,
+            'oil_painting': oil_painting_pil
+        }
+    except Exception as e:
+        st.error(f"Error processing image: {str(e)}")
+        return None
 
-# Interfaz principal
-st.title("🎨 ArtConnect - Tu Galería de Arte Digital")
+# Main interface
+st.title("🎨 ArtConnect - Your Digital Art Gallery")
 st.markdown("""
-    ### Transforma tus fotos en obras de arte
-    Sube una imagen y descubre cómo se vería como una obra de arte en diferentes estilos.
+    ### Transform your photos into works of art
+    Upload an image and discover how it would look as an artwork in different styles.
 """)
 
-# Carga de imagen
-uploaded_file = st.file_uploader("Sube una imagen", type=['png', 'jpg', 'jpeg'])
+# Image upload
+uploaded_file = st.file_uploader("Upload an image", type=['png', 'jpg', 'jpeg'])
 
 if uploaded_file is not None:
-    with st.spinner('Procesando tu imagen...'):
+    with st.spinner('Processing your image...'):
         try:
-            # Procesar la imagen
+            # Process image
             processed_images = process_image(uploaded_file)
             
-            # Mostrar resultados
+            if processed_images is None:
+                st.error("Failed to process image. Please try again.")
+                st.stop()
+            
+            # Display results
             col1, col2 = st.columns(2)
             
             with col1:
-                st.image(processed_images['original'], caption="Imagen Original", use_column_width=True)
+                st.image(processed_images['original'], caption="Original Image", use_column_width=True)
             
             with col2:
-                st.image(processed_images['watercolor'], caption="Estilo Acuarela", use_column_width=True)
+                st.image(processed_images['watercolor'], caption="Watercolor Style", use_column_width=True)
             
             col3, col4 = st.columns(2)
             
             with col3:
-                st.image(processed_images['sketch'], caption="Estilo Boceto", use_column_width=True)
+                st.image(processed_images['sketch'], caption="Sketch Style", use_column_width=True)
             
             with col4:
-                st.image(processed_images['oil_painting'], caption="Estilo Pintura al Óleo", use_column_width=True)
+                st.image(processed_images['oil_painting'], caption="Oil Painting Style", use_column_width=True)
             
-            # Generar título artístico
-            title = title_generator.generate_title(processed_images['original'])
-            st.success(f"Título sugerido para tu obra: **{title}**")
+            # Generate artistic title
+            if title_generator:
+                title = title_generator.generate_title(processed_images['original'])
+                st.success(f"Suggested title for your artwork: **{title}**")
             
-            # Generar descripción de venta
-            sales_description = sales_agent.generate_sales_description(
-                processed_images['original'],
-                title
-            )
-            st.info(f"Descripción para vender tu obra:\n\n{sales_description}")
+            # Generate sales description
+            if sales_agent:
+                sales_description = sales_agent.generate_sales_description(
+                    processed_images['original'],
+                    title
+                )
+                st.info(f"Description to sell your artwork:\n\n{sales_description}")
             
-            # Generar estrategia de marketing
-            marketing_strategy = marketing_agent.generate_marketing_strategy(
-                processed_images['original'],
-                title
-            )
-            st.info(f"Estrategia de marketing:\n\n{marketing_strategy}")
+            # Generate marketing strategy
+            if marketing_agent:
+                marketing_strategy = marketing_agent.generate_marketing_strategy(
+                    processed_images['original'],
+                    title
+                )
+                st.info(f"Marketing strategy:\n\n{marketing_strategy}")
             
         except Exception as e:
-            st.error(f"Error al procesar la imagen: {str(e)}")
-            st.info("Por favor, intenta con otra imagen o contacta al soporte técnico.")
+            st.error(f"Error processing image: {str(e)}")
+            st.info("Please try another image or contact technical support.")
 
 # Footer
 st.markdown("---")
 st.markdown("""
     <div style='text-align: center'>
-        <p>Desarrollado con ❤️ por ArtConnect</p>
-        <p>© 2024 ArtConnect - Todos los derechos reservados</p>
+        <p>Developed with ❤️ by ArtConnect</p>
+        <p>© 2024 ArtConnect - All rights reserved</p>
     </div>
 """, unsafe_allow_html=True) 
