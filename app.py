@@ -2,12 +2,7 @@ import streamlit as st
 import os
 from PIL import Image
 import numpy as np
-import torch
-from transformers import pipeline
 import cv2
-from title_generator import ArtTitleGenerator
-from sales_agent import ArtSalesAgent
-from marketing_agent import ArtConnectMarketingAgent
 import tempfile
 
 # Page configuration
@@ -16,20 +11,6 @@ st.set_page_config(
     page_icon="🎨",
     layout="wide"
 )
-
-# Initialize agents
-@st.cache_resource
-def load_agents():
-    try:
-        title_generator = ArtTitleGenerator()
-        sales_agent = ArtSalesAgent()
-        marketing_agent = ArtConnectMarketingAgent()
-        return title_generator, sales_agent, marketing_agent
-    except Exception as e:
-        st.error(f"Error loading agents: {str(e)}")
-        return None, None, None
-
-title_generator, sales_agent, marketing_agent = load_agents()
 
 # Function to process image
 def process_image(uploaded_file):
@@ -118,27 +99,6 @@ if uploaded_file is not None:
             
             with col4:
                 st.image(processed_images['oil_painting'], caption="Oil Painting Style", use_column_width=True)
-            
-            # Generate artistic title
-            if title_generator:
-                title = title_generator.generate_title(processed_images['original'])
-                st.success(f"Suggested title for your artwork: **{title}**")
-            
-            # Generate sales description
-            if sales_agent:
-                sales_description = sales_agent.generate_sales_description(
-                    processed_images['original'],
-                    title
-                )
-                st.info(f"Description to sell your artwork:\n\n{sales_description}")
-            
-            # Generate marketing strategy
-            if marketing_agent:
-                marketing_strategy = marketing_agent.generate_marketing_strategy(
-                    processed_images['original'],
-                    title
-                )
-                st.info(f"Marketing strategy:\n\n{marketing_strategy}")
             
         except Exception as e:
             st.error(f"Error processing image: {str(e)}")
