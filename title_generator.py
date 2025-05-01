@@ -1,24 +1,17 @@
-import torch
 from transformers import pipeline
 from PIL import Image
 
 class ArtTitleGenerator:
     def __init__(self):
         self.image_to_text = pipeline("image-to-text", model="nlpconnect/vit-gpt2-image-captioning")
-        self.text_generator = pipeline("text-generation", model="gpt2")
     
     def generate_title(self, image):
         try:
             # Generate image description
             description = self.image_to_text(image)[0]['generated_text']
             
-            # Generate title based on description
-            prompt = f"Generate a creative and artistic title for an artwork described as: {description}"
-            title = self.text_generator(prompt, max_length=50, num_return_sequences=1)[0]['generated_text']
-            
-            # Clean up the title
-            title = title.replace(prompt, "").strip()
-            title = title.split('\n')[0].strip()
+            # Create a title based on the description
+            title = f"'{description.capitalize()}'"
             
             return title
         except Exception as e:
