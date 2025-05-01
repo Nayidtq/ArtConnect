@@ -1,10 +1,9 @@
 streamlit==1.32.0
-opencv-python==4.9.0.80
+opencv-python-headless==4.9.0.80
 numpy==1.26.4
 Pillow==10.2.0
 torch==2.2.1
 transformers==4.38.2
 rembg==2.0.50
 faiss-cpu==1.7.4
-smtplib==0.0.1
 python-dotenv==1.0.1 
