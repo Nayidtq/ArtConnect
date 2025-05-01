@@ -169,27 +169,27 @@ class ArtSalesAgent:
 
     def generate_sales_description(self, image, title):
         try:
-            # Generar descripción de la imagen
+            # Generate image description
             description = self.image_to_text(image)[0]['generated_text']
             
-            # Crear descripción de venta
+            # Create sales description
             sales_description = f"""
             {title}
             
             {description.capitalize()}
             
-            Esta obra única captura la esencia del arte contemporáneo, combinando técnicas tradicionales con un enfoque moderno.
-            Perfecta para coleccionistas que buscan piezas únicas y significativas.
+            This unique piece captures the essence of contemporary art, combining traditional techniques with a modern approach.
+            Perfect for collectors seeking unique and meaningful pieces.
             
-            Características:
-            - Técnica mixta
-            - Obra original
-            - Lista para colgar
-            - Certificado de autenticidad incluido
+            Features:
+            - Mixed media technique
+            - Original artwork
+            - Ready to hang
+            - Certificate of authenticity included
             
-            Inversión en arte que apreciará con el tiempo.
+            An art investment that will appreciate over time.
             """
             
             return sales_description
         except Exception as e:
-            return f"Error al generar la descripción: {str(e)}" 
+            return f"Error generating description: {str(e)}" 
